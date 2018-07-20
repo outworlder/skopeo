@@ -192,6 +192,48 @@ Verify a signature using local files, digest will be printed on success.
 
 **Note:** If you do use this, make sure that the image can not be changed at the source location between the times of its verification and use.
 
+## skopeo sync
+**skopeo copy** [**--source** _source_] [**--source-file** _source-file_] _destination_
+
+Copy all the images from _source_ (or _source-file_) to _destination_.
+
+Useful to keep in sync a local docker registry mirror. It can be used to populate also registries running inside of air-gapped environments.
+
+_source_ can be either a repository hosted on a docker registry (eg: docker://docker.io/busybox) or a local directory (eg: dir:///media/usb/).
+
+_source-file_ is a YAML file with a set of source images from different docker registry. Local directory are not supported.
+
+**skopeo sync** will copy all the tags of an image when _source_ uses the docker://' transport and no tag is specified.
+
+_destination_ can be either a docker registry (eg: docker://my-registry.local.lan) or a local directory (eg: dir:///media/usb).
+
+When _destination_ is a local directory one directory per 'image:tag' is going to be created.
+
+  **--authfile** _path_
+
+  Path of the authentication file. Default is ${XDG_RUNTIME_DIR}/containers/auth.json
+
+  **--remove-signatures** do not copy signatures from _source_ images
+
+  **--sign-by** _fingerprint_ Sign the image using a GPG key with the specified _fingerprint_
+
+  **--source** __source__ The source from which images are going to be copied
+
+  **--source-file** __source-file__ YAML file with the images to be copied
+
+  **--src-creds** _username[:password]_, --screds _username[:password]_ Use _username[:password]_ for accessing the source registry
+
+  **--dest-creds** _username[:password]_, --dcreds _username[:password]_ Use _username[:password]_ for accessing the destination registry
+
+  **--src-cert-dir** _path_ Use certificates at _path_ (*.crt, *.cert, *.key) to connect to the source registry or daemon
+
+
+  **--src-tls-verify** Require HTTPS and verify certificates when talking to the container source registry or daemon (defaults to true)
+
+  **--dest-cert-dir** _path_ Use certificates at _path_ (*.crt, *.cert, *.key) to connect to the destination registry or daemon
+
+  **--dest-tls-verify** Require HTTPS and verify certificates when talking to the container destination registry or daemon (defaults to true)
+
 ## skopeo help
 show help for `skopeo`
 
@@ -281,6 +323,25 @@ See `skopeo copy` above for the preferred method of signing images.
 ```sh
 $ skopeo standalone-verify busybox-manifest.json registry.example.com/example/busybox 1D8230F6CDB6A06716E414C1DB72F2188BB46CC8  busybox.signature
 Signature verified, digest sha256:20bf21ed457b390829cdbeec8795a7bea1626991fda603e0d01b4e7f60427e55
+```
+## skopeo sync
+Example of the YAML file content to use with **--source-file** _source-file_:
+```yaml
+docker.io:
+    images:
+        busybox: []
+        redis:
+            - "1.0"
+            - "2.0"
+    credentials:
+        username: john
+        password: this is a secret
+    tls-verify: true
+    cert-dir: /home/john/certs
+quay.io:
+    images:
+        coreos/etcd:
+            - latest
 ```
 
 # SEE ALSO
