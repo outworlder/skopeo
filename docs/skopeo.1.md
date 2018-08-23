@@ -193,21 +193,21 @@ Verify a signature using local files, digest will be printed on success.
 **Note:** If you do use this, make sure that the image can not be changed at the source location between the times of its verification and use.
 
 ## skopeo sync
-**skopeo copy** [**--source** _source_] [**--source-file** _source-file_] _destination_
+**skopeo sync** [**--source-yaml**] _source_ _destination_
 
-Copy all the images from _source_ (or _source-file_) to _destination_.
+Copy all the images from _source_ to _destination_.
 
-Useful to keep in sync a local docker registry mirror. It can be used to populate also registries running inside of air-gapped environments.
+Useful to keep in sync with a local container registry mirror. It can also be used to populate registries running inside of air-gapped environments.
 
-_source_ can be either a repository hosted on a docker registry (eg: docker://docker.io/busybox) or a local directory (eg: dir:///media/usb/).
+_source_ can be either a repository hosted on a container registry (eg: docker://registry.example.com/busybox) or a local directory (eg: dir:/media/usb/).
 
-_source-file_ is a YAML file with a set of source images from different docker registry. Local directory are not supported.
+If **--source-yaml** is specified, then _source_ points to a YAML file with a list of source images from different container registries (local directories are not supported).
 
-**skopeo sync** will copy all the tags of an image when _source_ uses the docker://' transport and no tag is specified.
+When the source location is a container registry and no tags are specifieds,  **skopeo sync** will copy all the tags associated to the source image.
 
-_destination_ can be either a docker registry (eg: docker://my-registry.local.lan) or a local directory (eg: dir:///media/usb).
+_destination_ can be either a container registry (eg: docker://my-registry.local.lan) or a local directory (eg: dir:/media/usb).
 
-When _destination_ is a local directory one directory per 'image:tag' is going to be created.
+When _destination_ is a local directory, one directory per 'image:tag' will be created.
 
   **--authfile** _path_
 
@@ -217,16 +217,13 @@ When _destination_ is a local directory one directory per 'image:tag' is going t
 
   **--sign-by** _fingerprint_ Sign the image using a GPG key with the specified _fingerprint_
 
-  **--source** __source__ The source from which images are going to be copied
-
-  **--source-file** __source-file__ YAML file with the images to be copied
+  **--source-yaml** Interpret _source_ as a YAML file with a list of images from different container registries
 
   **--src-creds** _username[:password]_, --screds _username[:password]_ Use _username[:password]_ for accessing the source registry
 
   **--dest-creds** _username[:password]_, --dcreds _username[:password]_ Use _username[:password]_ for accessing the destination registry
 
   **--src-cert-dir** _path_ Use certificates at _path_ (*.crt, *.cert, *.key) to connect to the source registry or daemon
-
 
   **--src-tls-verify** Require HTTPS and verify certificates when talking to the container source registry or daemon (defaults to true)
 
@@ -325,7 +322,7 @@ $ skopeo standalone-verify busybox-manifest.json registry.example.com/example/bu
 Signature verified, digest sha256:20bf21ed457b390829cdbeec8795a7bea1626991fda603e0d01b4e7f60427e55
 ```
 ## skopeo sync
-Example of the YAML file content to use with **--source-file** _source-file_:
+Example of the YAML file content when using **--source-yaml**:
 ```yaml
 docker.io:
     images:
@@ -345,7 +342,7 @@ quay.io:
 ```
 
 # SEE ALSO
-kpod-login(1), docker-login(1)
+podman-login(1), docker-login(1)
 
 # AUTHORS
 
